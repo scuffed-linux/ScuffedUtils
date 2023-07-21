@@ -8,19 +8,15 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#define initModule(moduleImage, len, paramValues) syscall(__NR_init_module, moduleImage, len, paramValues)
 #define finitModule(fd, paramValues, flags) syscall(__NR_finit_module, fd, paramValues, flags)
 
 int main(int argc, char **argv) {
 	const char *params;
-	int fd, useFinit;
-	size_t imageSize;
-	struct stat st;
-	void *image;
+	int fd;
 
-	/* CLI handling. */
+	/* Make sure the user follows all of the rules */
 	if (argc < 2) {
-		puts("Usage ./prog mymodule.ko [args="" [useFinit=0]");
+		printf("Usage: insmod module-name.ko [parameters]\n");
 		return EXIT_FAILURE;
 	}
 	if (argc < 3) {
@@ -29,36 +25,13 @@ int main(int argc, char **argv) {
 	else {
 		params = argv[2];
 	}
-	if (argc < 4) {
-		useFinit = 0;
-	}
-	else {
-		useFinit = (argv[3][0] != '0');
-	}
 
-	/* Action. */
+	/* Insert the module */
 	fd = open(argv[1], O_RDONLY);
-	if (useFinit) {
-		puts("finit");
-		if (finitModule(fd, params, 0) != 0) {
-			perror("finitModule");
-			return EXIT_FAILURE;
-		}
-		close(fd);
+	if (finitModule(fd, params, 0) != 0) {
+		perror("insmod");
+		return EXIT_FAILURE;
 	}
-	else {
-		puts("init");
-		fstat(fd, &st);
-		imageSize = st.st_size;
-		image = malloc(imageSize);
-		read(fd, image, imageSize);
-		close(fd);
-		errno = 0;
-		if (initModule(image, imageSize, params) != 0) {
-			perror("initModule");
-			return EXIT_FAILURE;
-		}
-		free(image);
-	}
+	close(fd);
 	return EXIT_SUCCESS;
 }
