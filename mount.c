@@ -7,5 +7,5 @@ int main(int argc, char* argv[]) {
 		return 1;
     }
 
-    mount(argv[3], argv[4], argv[2], NULL, NULL);
+    mount(argv[3], argv[4], argv[2], 1, NULL);
 }

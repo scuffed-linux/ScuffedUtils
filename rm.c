@@ -36,12 +36,12 @@ int main(int argc, char *argv[]) {
 		else {
 			files[fileNum] = argv[i];
 			fileNum++;
-			files[fileNum] = 0xDEADBEEF;
+			files[fileNum] = "0xDEADBEEF";
 		}
 	}
 
 	for (uint_fast8_t i = 0; i != fileNum; i++) {
-		if (files[i] == 0xDEADBEEF) {
+		if (files[i] == "0xDEADBEEF") {
 			// stop
 			break;
 		}
